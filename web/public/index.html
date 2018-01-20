@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Search</title>
+  <style>
+    #matches {
+      position: absolute;
+      top: 0;
+      right: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Create books</h1>
+  <form onsubmit="return API.saveBook()">
+    <input id="bookname" type="text">
+    <input type="submit" value="submit">
+  </form>
+  <h1>Create videos</h1>
+  <form onsubmit="return API.saveVideo()">
+    <input id="videoname" type="text">
+    <input type="submit" value="submit">
+  </form>
+  <h1>Search</h1>
+  <form onsubmit="return API.search()">
+    <input id="search" type="text">
+    <input type="submit" value="submit">
+  </form>
+  <ul id="matches"></ul>
+  <script>
+    const API = (() => {
+      const makeSaveFunc = (selector, postNameFunc) => () => {
+        try {
+          const val = document.querySelector(selector).value;
+          postNameFunc(val);
+        } catch (e) {
+          console.log(e);
+          console.log('--------------------------');
+        }
+        return false;
+      };
+
+      const makePostNameFunc = uri => val => {
+        fetch(uri, {
+          method: 'POST',
+          body: JSON.stringify({ name: val }),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+      };
+
+      const postVideoName = makePostNameFunc("http://localhost:8080/api/v1/videos");
+      const postBookName = makePostNameFunc("http://localhost:8080/api/v1/books");
+
+      const search = () => {
+        try {
+          fetch("http://localhost:8080/api/v1/search")
+            .then(resp => resp.json())
+            .then(results => {
+              const ul = document.querySelector("#matches");
+              ul.innerHTML = '';
+              results.forEach(data => {
+                const li = document.createElement("li");
+                const liContent = `
+                  <p>${data.name}</p>
+                  <p>${data.type}</p>
+                `;
+                li.innerHTML = liContent;
+                ul.appendChild(li);
+              });
+            });
+        } catch (e) {
+          console.log(e);
+          console.log('--------------------------');
+        }
+        return false;
+      };
+
+      return {
+        saveVideo: makeSaveFunc("#videoname", postVideoName),
+        saveBook: makeSaveFunc("#bookname", postBookName),
+        search
+      }
+    })();
+  </script>
+</body>
+
+</html>

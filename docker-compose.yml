@@ -1,0 +1,51 @@
+version: '3'
+services:
+  web:
+    build: './web'
+    ports:
+      - "3000:3000"
+
+  search:
+    build: './search'
+    ports:
+      - "3001:3000"
+    depends_on: 
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/microservices
+
+  books:
+    build: './books'
+    ports:
+      - "3002:3000"
+    depends_on: 
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/microservices
+
+  videos:
+    build: './videos'
+    ports:
+      - "3003:3000"
+    depends_on: 
+      - db
+    environment:
+      - MONGO_DB_URI=mongodb://db/microservices
+  
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./web/public:/srv/www/static
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
+      - books
+      - search
+      - videos
