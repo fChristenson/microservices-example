@@ -24,6 +24,24 @@ app.get("/api/v1/search", async (req, res) => {
   res.json(videos.concat(books));
 });
 
+// Search spesific named books
+app.get("/api/v1/search-books/:name", async (req, res) => {
+  const booksPromise = Book.find({name: {$regex : '.*' + req.params.name + '.*'}});
+  const promises = [booksPromise];
+  const [books] = await Promise.all(promises);
+
+  res.json(books);
+});
+
+// Search spesific named videos
+app.get("/api/v1/search-videos/:name", async (req, res) => {
+  const videosPromise = Video.find({name: {$regex : '.*' + req.params.name + '.*'}});
+  const promises = [videosPromise];
+  const [videos] = await Promise.all(promises);
+
+  res.json(videos);
+});
+
 /*
   Calling other services from a service is dangerous.
   If those services make their own calls there is a chance

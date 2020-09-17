@@ -21,3 +21,7 @@ communication.
 Docker containers = good for almost all project sizes
 Microservices = good for big companies with a lot of code and people
 Sweetspot = Monolith app and databases in containers
+
+## Tests
+
+You can check out sample test cases via postman on sample-pics folder
